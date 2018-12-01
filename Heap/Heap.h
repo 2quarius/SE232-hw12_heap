@@ -97,21 +97,13 @@ class Heap
               int cnt=0;
               for(int i=0;i<elements[index].size();i++)
               {
-                  if(elements[index]==elements) {return make_pair(index,i);}
+                  if(elements[index][i]==element) {return make_pair(index,i);}
                   if(cmp(elements[index][0],element)){cnt++;}
               }
               if(cnt>pow(2,index)){index+=stride;}
               else {index-=stride;}
               stride=ceil(stride/2.0);
           }
-          /*
-          for(auto it=elements.begin();it!=elements.end();it++)
-          {
-              for(int i=0;i<(*it).second.size();i++)
-              {
-                  if(it->second[i]==element) return make_pair(it->first,i);
-              }
-          }*/
           return make_pair(-1,-1);
       }
       void shift_up(pair<int,int> index)
@@ -266,22 +258,6 @@ template<class Compare>
 Heap<Compare>::Heap(vector<int> init_elements)
 {
     insert(init_elements);
-    /*
-    sort(init_elements.begin(),init_elements.end(),cmp);
-    int key=1;
-    vector<int> value;
-    for(int i=0;i<init_elements.size();i++)
-    {
-        if(i==pow(2,key)-1) {
-            elements.insert(make_pair(key-1,value));
-            value.clear();
-            key++;
-        }
-        value.push_back(init_elements[i]);
-    }
-    if(value.size()>0) {elements.insert(make_pair(key-1,value));}
-    topIndex=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
-     */
 }
 
 template<class Compare>
@@ -293,15 +269,14 @@ void Heap<Compare>::insert(int element)
     }
     else {
         vector<int> v(1,element);
-        if(topIndex.first!=0){
+        if(!elements.empty()){
             elements.insert(make_pair(topIndex.first+1,v));
             topIndex=make_pair(topIndex.first+1,0);
         }
         else {
-            elements.insert(make_pair(topIndex,v));
+            elements.insert(make_pair(topIndex.first,v));
         }
     }
-    //pair<int,int> pos=topIndex;
     shift_up(topIndex);
 }
 
