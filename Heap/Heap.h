@@ -12,6 +12,7 @@
 #include <map>
 #include <algorithm>
 #include <cmath>
+#include <math.h>
 using namespace std;
 
 /*
@@ -90,13 +91,27 @@ class Heap
 
       pair<int,int> findIndex(int element)//can be improved by binary search
       {
+          int index=elements.size()/2;
+          int stride = ceil(index/2.0);
+          while (index>=0&&index<elements.size()) {
+              int cnt=0;
+              for(int i=0;i<elements[index].size();i++)
+              {
+                  if(elements[index]==elements) {return make_pair(index,i);}
+                  if(cmp(elements[index][0],element)){cnt++;}
+              }
+              if(cnt>pow(2,index)){index+=stride;}
+              else {index-=stride;}
+              stride=ceil(stride/2.0);
+          }
+          /*
           for(auto it=elements.begin();it!=elements.end();it++)
           {
               for(int i=0;i<(*it).second.size();i++)
               {
                   if(it->second[i]==element) return make_pair(it->first,i);
               }
-          }
+          }*/
           return make_pair(-1,-1);
       }
       void shift_up(pair<int,int> index)
@@ -105,8 +120,8 @@ class Heap
           while (isInRange(up)&&cmp(elements[index.first][index.second],elements[up.first][up.second]))
           {
               swap(up,index);
-	      index=up;
-	      up=getParentIndex(index);
+              index=up;
+              up=getParentIndex(index);
           }
       }
       void shift_down(pair<int,int> index)
@@ -118,9 +133,9 @@ class Heap
               if(!isInRange(right)){
                   if(cmp(elements[left.first][left.second],elements[index.first][index.second])){
                       swap(left,index);
-		      index=left;
-		      left=getLeftIndex(index);
-		      right=getRightIndex(index);
+                      index=left;
+                      left=getLeftIndex(index);
+                      right=getRightIndex(index);
                   }
                   else break;
               }
@@ -129,32 +144,32 @@ class Heap
                      cmp(elements[right.first][right.second],elements[index.first][index.second])) {
                       if (cmp(elements[left.first][left.second], elements[right.first][right.second])) {
                           swap(left, index);
-		          index=left;
-		          left=getLeftIndex(index);
-		          right=getRightIndex(index);
+                          index=left;
+                          left=getLeftIndex(index);
+                          right=getRightIndex(index);
                       }
                       else {
                           swap(right, index);
-		          index=right;
-		          left=getLeftIndex(index);
-		          right=getRightIndex(index);
+                          index=right;
+                          left=getLeftIndex(index);
+                          right=getRightIndex(index);
                       }
                   }
                   else if(cmp(elements[left.first][left.second],elements[index.first][index.second])&&
                           !cmp(elements[right.first][right.second],elements[index.first][index.second])){
                       swap(left,index);
-		      index=left;
-		      left=getLeftIndex(index);
-		      right=getRightIndex(index);
+                      index=left;
+                      left=getLeftIndex(index);
+                      right=getRightIndex(index);
                   }
                   else if(!cmp(elements[left.first][left.second],elements[index.first][index.second])&&
                           cmp(elements[right.first][right.second],elements[index.first][index.second])){
                       swap(right,index);
-		      index=right;
-		      left=getLeftIndex(index);
-		      right=getRightIndex(index);
+                      index=right;
+                      left=getLeftIndex(index);
+                      right=getRightIndex(index);
                   }
-		  else break;
+                  else break;
               }
           }
       }
@@ -250,6 +265,8 @@ Heap<Compare>::~Heap()
 template<class Compare>
 Heap<Compare>::Heap(vector<int> init_elements)
 {
+    insert(init_elements);
+    /*
     sort(init_elements.begin(),init_elements.end(),cmp);
     int key=1;
     vector<int> value;
@@ -264,6 +281,7 @@ Heap<Compare>::Heap(vector<int> init_elements)
     }
     if(value.size()>0) {elements.insert(make_pair(key-1,value));}
     topIndex=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
+     */
 }
 
 template<class Compare>
@@ -275,8 +293,13 @@ void Heap<Compare>::insert(int element)
     }
     else {
         vector<int> v(1,element);
-        elements.insert(make_pair(topIndex.first+1,v));
-        topIndex=make_pair(topIndex.first+1,0);
+        if(topIndex.first!=0){
+            elements.insert(make_pair(topIndex.first+1,v));
+            topIndex=make_pair(topIndex.first+1,0);
+        }
+        else {
+            elements.insert(make_pair(topIndex,v));
+        }
     }
     //pair<int,int> pos=topIndex;
     shift_up(topIndex);
