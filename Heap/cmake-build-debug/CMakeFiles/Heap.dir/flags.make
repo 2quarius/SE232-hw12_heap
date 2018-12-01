@@ -6,5 +6,5 @@ CXX_FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/Ma
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/sixplus/Downloads/Heap/. 
+CXX_INCLUDES = -I/Users/sixplus/Downloads/SE232-hw12_heap/Heap/. 
 

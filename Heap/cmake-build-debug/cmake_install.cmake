@@ -1,4 +1,4 @@
-# Install script for directory: /Users/sixplus/Downloads/Heap
+# Install script for directory: /Users/sixplus/Downloads/SE232-hw12_heap/Heap
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/sixplus/Downloads/Heap/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/sixplus/Downloads/SE232-hw12_heap/Heap/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -16,7 +16,7 @@ int main()
     }
     else
     {
-        printf("%-24s%s\n","MaxHeap Create", "Failed");
+	printf("%-24s%s\n","MaxHeap Create", "Failed");
     }
 
     // maxHeap singleInsert test
@@ -43,7 +43,7 @@ int main()
     {
         printf("%-24s%s\n","MaxHeap MultiInsert", "Failed");
     }
-    
+
     // maxHeap pop test
     if(maxHeap.pop()==45&&maxHeap.pop()==43&&maxHeap.pop()==33&&maxHeap.size()==12&&maxHeap.top()==21)
     {

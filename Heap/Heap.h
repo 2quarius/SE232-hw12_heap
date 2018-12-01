@@ -11,7 +11,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-
+#include <cmath>
 using namespace std;
 
 /*
@@ -50,7 +50,7 @@ class Heap
       // It's up to you whether to use them
       pair<int,int> getParentIndex(pair<int,int> index)
       {
-          if(index==topIndex) {return make_pair(-1,-1);}//return (-1,-1) when without parent node
+          if(index.first==0) {return make_pair(-1,-1);}//return (-1,-1) when without parent node
           else {return make_pair(index.first-1,index.second/2);}
       }
 
@@ -74,24 +74,17 @@ class Heap
 
       bool isInRange(pair<int,int> index)
       {
-          if(index.first<elements.size()&&index.second<elements[elements.size()-1].size()&&index.second<(1<<index.first))
-              return true;
-          else
-              return false;
+          return elements[elements.size() - 1].size() > index.second && index.first >=0 && index.first < elements.size() && index.second < (1 << index.first);
       }
       bool isTop(pair<int,int> index)
       {
-          if(index==topIndex) return true;
-          return false;
+          return topIndex == index;
       }
       void swap(pair<int,int> index_1, pair<int,int> index_2)
       {
-          int tmpFirst =index_1.first;
-          int tmpSecond = index_1.second;
+          if(index_1==index_2) return;
           int tmpValue=elements[index_1.first][index_1.second];
-          index_1.first=index_2.first;index_1.second=index_2.second;
           elements[index_1.first][index_1.second]=elements[index_2.first][index_2.second];
-          index_2.first=tmpFirst;index_2.second=tmpSecond;
           elements[index_2.first][index_2.second]=tmpValue;
       }
 
@@ -109,15 +102,60 @@ class Heap
       void shift_up(pair<int,int> index)
       {
           pair<int,int> up=getParentIndex(index);
-          if(up.first!=-1) {
-              swap(up, index);
+          while (isInRange(up)&&cmp(elements[index.first][index.second],elements[up.first][up.second]))
+          {
+              swap(up,index);
+	      index=up;
+	      up=getParentIndex(index);
           }
       }
       void shift_down(pair<int,int> index)
       {
           pair<int,int> left=getLeftIndex(index);
-          if(left.first!=-1){
-              swap(left,index);
+          pair<int,int> right=getRightIndex(index);
+          while(isInRange(left)||isInRange(right))
+          {
+              if(!isInRange(right)){
+                  if(cmp(elements[left.first][left.second],elements[index.first][index.second])){
+                      swap(left,index);
+		      index=left;
+		      left=getLeftIndex(index);
+		      right=getRightIndex(index);
+                  }
+                  else break;
+              }
+              else{
+                  if(cmp(elements[left.first][left.second],elements[index.first][index.second])&&
+                     cmp(elements[right.first][right.second],elements[index.first][index.second])) {
+                      if (cmp(elements[left.first][left.second], elements[right.first][right.second])) {
+                          swap(left, index);
+		          index=left;
+		          left=getLeftIndex(index);
+		          right=getRightIndex(index);
+                      }
+                      else {
+                          swap(right, index);
+		          index=right;
+		          left=getLeftIndex(index);
+		          right=getRightIndex(index);
+                      }
+                  }
+                  else if(cmp(elements[left.first][left.second],elements[index.first][index.second])&&
+                          !cmp(elements[right.first][right.second],elements[index.first][index.second])){
+                      swap(left,index);
+		      index=left;
+		      left=getLeftIndex(index);
+		      right=getRightIndex(index);
+                  }
+                  else if(!cmp(elements[left.first][left.second],elements[index.first][index.second])&&
+                          cmp(elements[right.first][right.second],elements[index.first][index.second])){
+                      swap(right,index);
+		      index=right;
+		      left=getLeftIndex(index);
+		      right=getRightIndex(index);
+                  }
+		  else break;
+              }
           }
       }
 
@@ -212,70 +250,94 @@ Heap<Compare>::~Heap()
 template<class Compare>
 Heap<Compare>::Heap(vector<int> init_elements)
 {
-    sort(init_elements,cmp);
-    int key=0;
+    sort(init_elements.begin(),init_elements.end(),cmp);
+    int key=1;
     vector<int> value;
     for(int i=0;i<init_elements.size();i++)
     {
-        value.push_back(init_elements[i]);
-        if(i==(1<<key)-1) {
-            elements.insert(key,value);
+        if(i==pow(2,key)-1) {
+            elements.insert(make_pair(key-1,value));
             value.clear();
             key++;
         }
+        value.push_back(init_elements[i]);
     }
-    if(value.size()>0) {elements.insert(key+1,value);}
+    if(value.size()>0) {elements.insert(make_pair(key-1,value));}
+    topIndex=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
 }
 
 template<class Compare>
 void Heap<Compare>::insert(int element)
 {
-    pair<int,int> bottom=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
-    if(bottom.second<(1<<bottom.first)-1){
-        elements[bottom.first].push_back(element);
-        //parent=getParentIndex(make_pair(bottom.first,elements[bottom.first].size()-1));
+    if(topIndex.second<pow(2,topIndex.first)-1){
+        elements[topIndex.first].push_back(element);
+        topIndex.second++;
     }
     else {
         vector<int> v(1,element);
-        elements.insert(make_pair(bottom.first+1,v));
-        //parent=getParentIndex(make_pair(bottom.first+1,0));
+        elements.insert(make_pair(topIndex.first+1,v));
+        topIndex=make_pair(topIndex.first+1,0);
     }
-    pair<int,int> pos=findIndex(element);
-    pair<int,int> parent=getParentIndex(pos);
-    while (cmp(element,elements[parent.first][parent.second]))
-    {
-        swap(pos,parent);
-    }
+    //pair<int,int> pos=topIndex;
+    shift_up(topIndex);
 }
 
 template<class Compare>
 void Heap<Compare>::insert(vector<int> new_elements)
 {
-    // you code here
+    for(int i=0;i<new_elements.size();i++)
+    {
+        insert(new_elements[i]);
+    }
 }
 
 template<class Compare>
 bool Heap<Compare>::erase(int element)
 {
-    // you code here
+    pair<int,int> pos=findIndex(element);
+    if(!isInRange(pos)) return false;
+    swap(pos,topIndex);
+    if(topIndex.second==0){
+	int key=elements.size()-1;
+        elements.erase(key);
+        topIndex=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
+    }
+    else {
+        elements[topIndex.first].pop_back();
+        topIndex.second--;
+    }
+    shift_down(pos);
+    return true;
 }
 
 template<class Compare>
 int Heap<Compare>::pop()
 {
-    // you code here
+    int cache=elements[0][0];
+    swap(make_pair(0,0),topIndex);
+    if(topIndex.second==0){
+	int key=elements.size()-1;
+        elements.erase(key);
+        topIndex=make_pair(elements.size()-1,elements[elements.size()-1].size()-1);
+    }
+    else {
+        elements[topIndex.first].pop_back();
+        topIndex.second--;
+    }
+    shift_down(make_pair(0,0));
+    return cache;
 }
 
 template<class Compare>
 int Heap<Compare>::top()
 {
-    // you code here
+    return elements[0][0];
 }
 
 template<class Compare>
 int Heap<Compare>::size()
 {
-    // you code here
+    return pow(2, elements.size() - 1) - 1 + elements[elements.size() - 1].size();
 }
 
 #endif
