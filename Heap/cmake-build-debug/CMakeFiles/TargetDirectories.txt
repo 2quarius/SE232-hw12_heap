@@ -1,0 +1,3 @@
+/Users/sixplus/Downloads/Heap/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/sixplus/Downloads/Heap/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/sixplus/Downloads/Heap/cmake-build-debug/CMakeFiles/Heap.dir
